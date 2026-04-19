@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package orcai;
+option go_package = "./internal/grpc/pb;pb";
+
+message AskRequest {
+  string input = 1;
+}
+
+message AskResponse {
+  string task_id = 1;
+}
+
+message LogRequest {
+  string task_id = 1;
+}
+
+message LogResponse {
+  string task_id = 1;
+  string log = 2;
+  string level = 3;
+}
+
+message StatusRequest {
+  string task_id = 1;
+}
+
+message StatusResponse {
+  string task_id = 1;
+  string status = 2;
+}
+
+
+service BridgeService {
+  rpc Ask(AskRequest) returns  (AskResponse) {}
+  rpc Logs(LogRequest) returns  (stream LogResponse) {}
+  rpc Status(StatusRequest) returns (stream StatusResponse) {}
+}
