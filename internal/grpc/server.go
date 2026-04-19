@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"OrcAI/internal/broker/task"
+	"OrcAI/internal/core"
 	"OrcAI/internal/grpc/pb"
 	"OrcAI/pkg/str"
 	"context"
@@ -25,6 +26,7 @@ type Event struct {
 type BridgeServer struct {
 	NC     *nats.Conn
 	Memory sync.Map
+	Router core.AgentRouter
 	pb.UnimplementedBridgeServiceServer
 }
 
@@ -74,9 +76,14 @@ func (s *BridgeServer) StartSubscribers() error {
 func (s *BridgeServer) Ask(_ context.Context, req *pb.AskRequest) (*pb.AskResponse, error) {
 	id := uuid.NewString()
 
+	routeType, err := s.Router.Route(req.Input)
+	if err != nil {
+		return nil, err
+	}
+
 	t := task.Created{
 		TaskID: id,
-		Type:   "os", //todo add routing
+		Type:   routeType,
 		Payload: task.CreatedPayload{
 			Msg: req.Input,
 		},
